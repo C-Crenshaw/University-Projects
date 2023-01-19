@@ -1,0 +1,60 @@
+Project Parameters:
+Your task is to use UVAGE to create an interesting game. 
+
+Basic Features
+Your game should look like a game someone might want to play (i.e., probably not just a lot of
+colored boxes). Your game window should be 800 x 600 pixels.
+
+Your game must include the following basic features:
+
+User Input: Either through the keyboard, or mouse, or both. You should have appropriate and working
+user controls.
+
+Game Over: It must be possible to “lose” the game somehow. That is, the game ends when the player
+runs out of health, or time, runs into an enemy, etc. When the game ends the player
+should be shown a game over screen.
+
+Graphics/Images: Use some appropriate images in your game. If you are using local image files, remember
+to submit them with your project. If your game is expecting local image files, and you
+do not submit them by the deadline, there will be a deduction
+
+Additional Features
+You must include at least 4 of the following additional features:
+
+Restart from Game Over: When the player gets game over, they can hit a button to restart the game from the
+beginning. For full credit, this must be done without re-running the program.
+
+Sprite Animation: Use a sprite sheet to have one or more animated gameboxes.
+
+Enemies: Have characters that can hinder the player character from accomplishing the goal. For
+full credit, enemies must move.
+
+Collectibles: Add collectables (i.e., coins) to the level that can be picked up by the character with a
+counter that appears on the screen. We typically get many “does X count as a
+collectible?” questions. Standard collectibles exist in the environment; they vanish
+when you touch them and give you some benefit from collecting them.
+
+Scrolling level: Make the level much larger than the screen (You may need to add a background image to
+make this more obvious.)
+
+Timer: Have a countdown (or count up) timer for your game. For full points, this needs to make
+some kind of sense within the context of the game itself.
+
+Health Bar: Have a health bar that changes as you hit enemies/obstacles. A bar must be graphical
+(not simply text) and lowering health should remove items from or shorten the bar. It’s
+only a health bar if it getting to 0 health results in loss of game (or re-spawning at a
+save point).
+
+Two players simultaneously: Two players who are able to interact with one another within the game (not
+through a network connection).
+
+Multiple levels: Make several distinct levels that the player can advance through. If you do this,
+make it clear that there are several levels so that your grader knows to try to reach more
+than one.
+
+Save points: When the player reaches some milestone, future failures cause the player to respawn
+at that save point instead of having to start over.
+
+Inter-session progress: Have your game write some information to a file when it closes, and use that to update
+the next play. For example, you could have a cumulative high-score chart; a “save game”
+option; or even log what the player does and make “instant replays” or the like.
