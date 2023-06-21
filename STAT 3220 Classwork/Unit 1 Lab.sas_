@@ -1,0 +1,44 @@
+*Exploratory Data Analysis, Scatterplots;
+proc corr data=ourdata.bodyfat2 plots(only)=scatter(nvar=all ellipse=none);
+var Age Weight Height;
+with PctBodyFat2;
+run;
+
+proc corr data=ourdata.bodyfat2 plots(only)=scatter(nvar=all ellipse=none);
+var Neck Chest Abdomen Hip Thigh Knee Biceps Ankle Forearm Wrist;
+with PctBodyFat2;
+run;
+
+*Correlation;
+proc corr data=ourdata.bodyfat2 plots(only)=scatter(nvar=all ellipse=none) BEST=5;
+var Age Weight Height Neck Chest Abdomen Hip Thigh Knee Biceps Ankle Forearm Wrist;
+with PctBodyFat2;
+run;
+
+*Simple Linear Regression;
+proc reg data=ourdata.bodyfat2 plots=none; *use the data name you want to analyze;
+model PctBodyFat2= Weight; *model Y= X1 X2 X3...;
+run;
+
+*Multiple Linear Regression;
+proc reg data=ourdata.bodyfat2 plots=none; *use the data name you want to analyze;
+model PctBodyFat2= Age Weight Height Neck Chest Abdomen Hip Thigh Knee Ankle Biceps Forearm Wrist; *model Y= X1 X2 X3...;
+run;
+
+*Refit the Model, Removing Variable with Highest P-value;
+proc reg data=ourdata.bodyfat2 plots=none; *use the data name you want to analyze;
+model PctBodyFat2= Age Weight Height Neck Chest Abdomen Hip Thigh Ankle Biceps Forearm Wrist; *model Y= X1 X2 X3...;
+run;
+
+*Refit Again;
+proc reg data=ourdata.bodyfat2 plots=none; *use the data name you want to analyze;
+model PctBodyFat2= Age Weight Height Neck Abdomen Hip Thigh Ankle Biceps Forearm Wrist; *model Y= X1 X2 X3...;
+run;
+
+
+
+
+
+
+
+
