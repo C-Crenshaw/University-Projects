@@ -1,0 +1,196 @@
+---
+title: "Assignment 2 - Intro to R (20 pts)"
+author: "CARSON CRENSHAW (cgc8gdt)"
+output: html_document
+---
+
+## Create Vectors
+```{r}
+# Below are vectors of basketball athletes and their total points and total rebounds during one game. 
+
+athleteA <- c(15, 3)
+
+athleteB <- c(20, 5)
+
+athleteC <- c(10, 8)
+
+athleteD <- c(12, 2)
+
+```
+
+## Question 1 (1 point)
+```{r}
+# Combine the 4 vectors in the order they are listed into a single vector called 'game_stats'
+game_stats <- c(athleteA,athleteB,athleteC,athleteD)
+game_stats
+```
+
+## Question 2 (1 point)
+```{r}
+# Construct a matrix where each athlete is a row. Call this matrix 'stat_matrix'
+# Below is a construction using the matrix( ) function and one vector. 
+stat_matrix <- matrix(game_stats, byrow = TRUE, nrow = 4)
+stat_matrix
+
+```
+
+## Question 3 (1 point)
+```{r}
+# Name the rows by the variable names for each athlete
+# The row names are labeled using the rownames( ) function and a vector which stores the athletes names.
+athletenames <- c("athleteA","athleteB","athleteC","athleteD")
+rownames(stat_matrix) <- athletenames
+stat_matrix
+
+```
+
+## Question 4 (1 point)
+```{r}
+# Name the columns 'points' and 'rebounds'
+namesforcolumns <- c("points", "rebounds")
+colnames(stat_matrix) <- namesforcolumns
+stat_matrix
+
+```
+
+## Question 5 (2 points)
+```{r}
+# Create a 5th athlete ("athleteE") and add their points and rebounds to the stats_matrix
+athleteE <- c(25, 4)
+stat_matrix <- rbind(stat_matrix, athleteE)
+stat_matrix
+
+```
+
+## Question 6 (1 point)
+```{r}
+# Assuming only these 5 players played in the game, calculate the total points and rebounds
+totals <- colSums(stat_matrix)
+totals
+
+```
+
+## Question 7 (1 point)
+```{r}
+# Write out an example of a factor variable discussed in the introduction of "How Charts Lie"
+# (no code)
+```
+Political affiliation is an example of a factor/categorical variable, or a variable which belongs to a limited number of categories. In the case of the charts utilized in the Introduction chapter of "How Charts Lie," political affiliation is largely reduced to either "Republican" or "Democrat". If this information was coded or represented in R, factor would be used to store these categorical variables. 
+
+## Question 8 (1 point)
+```{r}
+# Create a vector of factor variables "high", "med", and "low"
+# A normal vector of factor variables is represented by "varvector". Because these variables are factor variables, one can also use factor( ) to assign the factor data type to elements. Both are shown below.
+varvector <- c("high", "med", "low")
+varvector #normal vector
+
+ordinalvarvector <- factor(varvector,order = TRUE, levels = c("low", "med", "high"))
+ordinalvarvector #factor
+
+```
+
+## Question 9 (1 point)
+```{r}
+# Rename factors to 'h', 'm', 'l'
+# The name of the factor levels can be changed by using the levels( ) function
+levels(ordinalvarvector) <- c("l", "m", "h")
+ordinalvarvector
+
+```
+
+## Question 10 (1 point)
+```{r}
+# create a list that combines the stat_matrix and the vector from question 9
+newlist <- list(stat_matrix, ordinalvarvector)
+newlist
+
+# Access the second element of this list
+# Using single brackets results in just a list of element 2 (a list of the second element that contains the vector). Using double brackets accesses the actual element within the list (vector).
+newlist[[2]]
+```
+
+## Question 11 (1 point)
+```{r}
+# load in iris dataset
+# iris is a data frame that already exists in R, so no loading of libraries or importing data is needed.
+iris
+
+# show the first six rows of data
+head(iris)
+
+```
+
+## Question 12
+```{r}
+# how many rows are in the dataframe? (show with code)
+# The dim( ) shows that there are 150 rows and 5 columns. 
+dim(iris)
+# This conclusion can be checked with the tail( ) function which shows that the final row is row #150. 
+tail(iris)
+
+```
+
+## Question 13 (1 point)
+```{r}
+# what are the column names? (show with code)
+# str( ) code illustrates the column name and data types
+str(iris)
+# colnames( ) function outputs just the column names
+colnames(iris)
+```
+
+## Question 14 (1 point)
+```{r}
+# what is the value of the 2 row, 3 column? (show with code)
+# Below is the code that represents the "Petal.Length" value of observation 2 (1.4).
+iris[2,3]
+
+```
+
+## Question 15 (1 point)
+```{r}
+# what are the sepal lengths for rows 25-30?
+# Sepal length values can be illustrated through sub-setting specific data using numeric indexing. 
+iris$Sepal.Length[25:30]
+
+```
+
+## Question 16 (1 point)
+```{r}
+# select petal length and petal width when species is "setosa"
+# Below is a selected data frame which only includes petal length and petal width when the species is "setosa". There are 50 observations which have the species as "setosa". 
+iris[iris$Species == "setosa",][,c(3,4,5)]
+
+```
+
+## Question 17 (2 point)
+
+```{r}
+# Subset the iris data to include setosa and virginica flowers whose petal lengths are greater than or equal to  1.5
+# keep columns: species, petal width, and petal length
+iris[(iris$Species == "setosa" | iris$Species == "virginica") & iris$Petal.Length >= 1.5,][,c(3,4,5)]
+
+```
+
+## Question 18 (1 point)
+
+```{r}
+# Sort the entries by sepal length within the dataframe (hint: you can use order())
+iris[order(iris$Sepal.Length),]
+
+```
+
+## Question 19 (2 points)
+```{r}
+# Print your current working directory (with code)
+getwd()
+# Create a subfolder named "test" (with code)
+dir.create(file.path(getwd(), 'test'), recursive = TRUE)
+# Change working directory to subfolder (with code)
+# When using the setwd( ) within a knitted file, the working directory is changed to /Users/CarsonCrenshaw/UVA Coursework/DS2003/test inside a notebook chunk. The working directory is reset when the chunk is finished running. To make a permanent change, the knitr root.dir option must be used at the beginning of the file in the setup chunk to change the working directory for notebook chunks.
+setwd("/Users/CarsonCrenshaw/UVA Coursework/DS2003/test")
+# Print your current working directory (with code)
+getwd()
+
+```
+

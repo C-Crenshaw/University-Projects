@@ -1,0 +1,107 @@
+---
+title: "Assignment 4 - ggplot2 (20 pts)"
+author: "CARSON CRENSHAW (cgc8gdt)"
+
+output: html_document
+---
+
+Look at the graphs below. Given the data, do your best to recreate the graph. At times, you may need to manipulate data using dplyr.
+
+```{r}
+# packages
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(ggExtra)
+library(dplyr)
+```
+
+## Graph 1: Histogram with fixed bins and distribution (5 points)
+
+* no need to import a dataset. Call `mpg` as your dataset within ggplot2 (pre-loaded)
+
+![](graph1.png)
+
+```{r}
+ggplot(mpg, aes(x=displ, fill=class)) + geom_histogram(bins = 5) +
+  labs(
+    title = 'Histogram with Fixed Bins',
+    subtitle = 'Engine Displacement across Vehicle Classes') +
+  ylab('count') +
+  xlab('displ') +
+  scale_fill_brewer(palette="Spectral") +
+  theme_classic()
+
+```
+
+## Graph 2: Marginal Histogram (5 points)
+
+* use the pre-load `mpg` dataset again
+* will need to use the `ggExtra` package
+
+![](graph2.png)
+```{r}
+p <- ggplot(mpg, aes(x=cty, y=hwy)) +
+      geom_point() +
+      geom_count() +
+      geom_smooth(method="lm", se=FALSE) +
+      theme_light()
+
+ggMarginal(p, type="histogram", color="black", fill='white')
+
+```
+
+## Graph 3: Bubble Chart (5 points)
+* note the filtering on manufacturer
+
+![](graph3.png)
+
+```{r}
+newmpg<-mpg %>%
+  filter(manufacturer == 'audi'| manufacturer == 'ford'| manufacturer == 'honda'| manufacturer == 'hyundai')
+
+ggplot(newmpg, aes(x = displ, y = cty, color = manufacturer)) +
+  geom_point(aes(size=hwy,color = manufacturer)) + 
+  geom_jitter()+
+  geom_smooth(method=lm, se=FALSE) +
+  labs(
+    title = 'Bubble chart',
+    subtitle = 'mpg: Displacement vs. City Mileage') +
+  guides(size = guide_legend(order = 1),
+         color = guide_legend(order = 2)) +
+  ylim(10, 29) +
+  theme_bw()
+
+```
+
+## Graph 4: Diverging Dot Plot (5 points)
+
+* use mtcars from base r
+* will need to calculate and z-score and bin cars based on results. 
+
+![](graph4.png)
+
+```{r,fig.width=8, fig.height=7}
+
+newmtcars <- mtcars %>% 
+  mutate(mpg_z = round((mpg - mean(mpg))/sd(mpg),2)) #creating a new column in the dataframe
+              
+newmtcars2 <- newmtcars %>% 
+  mutate(Mileage = case_when(mpg_z < 0 ~ 'Below Average',
+                           mpg_z > 0 ~ 'Above Average'))
+
+ggplot(newmtcars2, aes(x=reorder(row.names(newmtcars2), mpg_z), y=mpg_z, color=Mileage, fill=Mileage)) + 
+  geom_dotplot(binaxis='y', stackdir='center', binwidth = 0.2) +
+  geom_text(label = newmtcars2$mpg_z, size = 2, color='white') +
+  scale_fill_manual(values=c('green3', "lightcoral")) +
+  scale_color_manual(values=c('green3', "lightcoral")) +
+  coord_flip() +
+  labs(
+    title = 'Diverging Dot Plot',
+    subtitle = 'Normalised mileage from "mtcars": Dotplot') +
+  xlab('car name') +
+  ylim(-2.5, 2.5) +
+  theme_bw()
+
+```
+

@@ -1,0 +1,141 @@
+---
+title: "Assignment 11 - Shiny"
+author: "Carson Crenshaw (cgc8gdt)"
+output:
+     html_document:
+runtime: shiny  
+---
+
+- You may work with classmates on this assignment. For Part 2, please use different data sets from those you worked with.
+
+- Upload your Shiny app on [ShinyApps.io](https://www.shinyapps.io).
+
+- Submit your `.Rmd` AND your URL (<https://XXXXX.shinyapps.io/XXXXX>) on Collab.
+
+```{r}
+# List classmates you worked with on this homework: N/A
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(knitr)
+library(tidyverse)
+library(plotly)
+library(foreign)
+library(shiny)
+```
+
+# Part 1
+
+-   First, get the latest reported counts of COVID-19 cases and deaths from WHO:[Data](https://covid19.who.int/data).
+
+-   The file should be named `WHO-COVID-19-global-table-data.csv`
+
+-   Create a subset including 3 countries per `WHO region` (Africa, Americas, Eastern Mediterranean, Europe, South-East Asia, Western Pacific). You can choose any three countries within each `WHO region` to compare the mortality rate (`mutate(rate = "Deaths - cumulative total"/"Cases - cumulative total")`).
+
+-   Create a shiny app to produce bar plots, along with the control type of `selectInput()`.
+
+-   You need to use `selectInput()` in the `ui` to select one level from the `WHO region` variable (with 6 levels: Africa, Americas, Eastern Mediterranean, Europe, South-East Asia, Western Pacific).
+
+-   When selecting each WHO region, your output should be a barplot of mortality rates for the three countries. An example is shown as the reference graph (error bars are not needed)
+
+## Q1
+
+```{r}
+WHO_COVID_19_global_table_data <- read.csv('WHO-COVID-19-global-table-data.csv')
+
+# Subset three countries for each WHO region (Western Pacific)
+Covid_subset <- WHO_COVID_19_global_table_data %>%
+  mutate(Mortality_rate = (Deaths...cumulative.total/Cases...cumulative.total)) %>%
+  mutate(Country = row.names(WHO_COVID_19_global_table_data))
+
+# Manually selected three countries for each region
+Mortality_Rates <- Covid_subset %>%
+  filter(Country == "Nigeria" | Country == "South Africa" | Country == "Cameroon"
+                      | Country == "Argentina" | Country == "Mexico" | Country == "Chile"
+                      | Country == "Iraq"| Country =="Iran (Islamic Republic of)"| Country =="Saudi Arabia"
+                      | Country =="France"| Country =="Spain"| Country =="Greece"
+                      | Country =="Bangladesh"| Country =="India"| Country =="Nepal"
+                      | Country =="China"| Country =="Guam"| Country =="French Polynesia")
+
+# Shiny
+ui = fluidPage(
+  # Input Objects
+    selectInput("Name", label = "Region:",
+              choices = c("Africa", "Americas", "Eastern Mediterranean", "Europe", "South-East Asia", "Western Pacific"), 
+              selected = "Africa"),
+  # output Objects
+  plotOutput(outputId = "mortalityplot")
+)
+
+server = function(input, output) {
+  output$mortalityplot <- renderPlot({
+    ggplot(Mortality_Rates %>%
+    # Error bars are not needed within the bar charts
+    filter(Name == input$Name), aes(x=Country, y=Mortality_rate)) + geom_bar(stat='identity') + 
+      ggtitle(paste0("WHO Region: ", input$Name)) +
+      labs(x="Name", y="Mortality rate") +
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 45, hjust=1))
+  })}
+
+shinyApp(ui, server)
+```
+
+# Part 2
+
+-   Use a dataset that is available in data repositories (e.g., [kaggle](https://www.kaggle.com/datasets)). But don't use the datasets you used for your previous assignments.
+
+-   Briefly describe the dataset you're using for this assignment (e.g., means to access data, context, sample, variables, etc...)
+
+    -   <https://www.kaggle.com/datasets/gianinamariapetrascu/gender-inequality-index>
+    -   The data set used for the completion of Part 2 was found on Kaggle.com. The name of the repository in which it is held is "Gender Inequality Index." The Gender_Inequality_Index.csv file has over 190 observations and 11 columns representing data on individual countries. The Gender Inequality Index (GII) data set provides a comprehensive measure of gender inequality across countries, capturing gender disparities in many fields such as health, education, and economic opportunities. Developed by the United Nations Development Program (UNDP), the GII reflects gender-based disadvantages and the loss in potential human development due to inequality between female and male achievements in the three dimensions (reproductive health, empowerment, and labor market). Within this data set, the raw GII score is provided as well as additional factors that may impact the score itself.
+
+
+-   Select *two* continuous variables (denoted as "A" and "B")
+
+-   Create an interactive scatterplot between "A" and "B" with a loess line using Shiny app.
+
+-   You need to create two input variables for loess regression.
+
+    -   One input variable is the degree with values of 0, 1, and 2.
+    -   The other input variable is the span value ranging from 0.2 to 0.9.
+
+
+-   You can choose appropriate control types from [Widget gallery](https://shiny.rstudio.com/gallery/widget-gallery.html).
+
+## Q2
+
+```{r}
+GII_file <- read.csv('Gender_Inequality_Index.csv')
+
+# Two continuous variables: GII and Seats Parliament
+
+ui = fluidPage(
+  # Input Objects
+  selectInput("span0", label = "Select Degree", 
+    choices = list("Degree of 0" = 0, "Degree of 1" = 1, "Degree of 2" = 2), 
+    selected = 1),
+  sliderInput(inputId = "span", label = "Span Adjustment",
+              min = 0.2, max = 0.9, value = 0.5, step = 0.1),
+  # Output Objects
+  plotOutput(outputId = "giiplot")
+)
+
+server = function(input, output) {
+  output$giiplot <- renderPlot({
+    ggplot(GII_file, aes(x=GII, y=F_secondary_educ)) + geom_point() + 
+      geom_smooth(method = "loess", se=FALSE, formula=y~x, span=input$span,
+                  method.args=list(degree = input$span0)) + theme_bw() +
+      labs(title = "Relationship between Gender Inequality Index (GII) and Female Secondary Education", x = "Gender Inequality Index (GII)", y = "Percentage (%) of the Female Pop. with at least a Secondary Education")
+  })}
+
+shinyApp(ui, server)
+
+```
+
+-   Describe a relationship between A and B. Also, describe how a loess line changes as the degree increases and/or the span value increases.
+
+    -   The observed relationship between variable A (the Gender Inequality Index) and B (the percentage of women within a country with at least a secondary education) is strong and negative, as one might expect. In other words, the two variables have an inverse relationship: as the percentage of the educated female population rises, the GII score decreases. Higher education attainment levels is a measure obtained through the United Nations Educational, Scientific, and Cultural Organization (UNESCO). It is commonly understood that an access to higher education expands freedom for women by increasing their ability to question and reason. Additionally, women with an access to information can expand their public involvement and fight for equal rights. This conclusion is supported by the trend illustrated in the scatterplot and the loess line.
+
+    -   To describe the loess line itself, the inverse relationship remains constant and clearly demonstrated regardless of degree or span value changes. To focus on the span values in particular, the loess line is dependent upon this smoothing parameter. Because the loess line is a measure of local regression that is built from a "nearest neighbor" calculation (fitting simple models to localized subsets of the data), it is important to distinguish how many of the neighbors are being considered in the model. In R, this is done by setting the span parameter. I have defaulted the span at 0.5, which means that the regression considers the closest 1/2 of the total data points. Regardless as to whether the span parameter is set above or below 0.5, the inverse relationship is still robust and present. Although a span value of 0.2 shows more variation in the trend and a span value of 0.9 shows an idealized relationship, both demonstrate that more gender equality is present when more of the female population is educated.

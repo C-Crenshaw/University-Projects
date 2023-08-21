@@ -1,0 +1,185 @@
+---
+title: "Assignment 3 - Descriptive Stats (20 pts)"
+author: "CARSON CRENSHAW (cgc8gdt)"
+
+output: html_document
+---
+
+**You will submit the html output and raw rmd file.**
+
+This assignment will use the popular Titanic dataset.
+Find the data dictionary for the dataset here: 
+https://www.kaggle.com/competitions/titanic/data
+Download the file "train.csv" from the kaggle site, and rename the file to "titanic.csv"
+
+```{r}
+# Load the dataset; assign the dataframe to object called 'titanic'
+
+titanic <- read.csv('titanic.csv')
+
+```
+
+## Question 1 (.5 point)
+```{r}
+# Look at the first 6 rows of data
+
+head(titanic)
+
+```
+
+## Question 2 (2 point)
+```{r}
+# sort rows of titanic datafame by fare (smallest to largest) and assign to "sorted_titanic"
+
+sorted_titanic <- titanic[order(titanic$Fare), ]
+sorted_titanic
+
+```
+
+## Question 3 (1 point)
+```{r}
+# subset the dataframe to include passengers in 2nd class and include the columns for class, name, age, and sex
+
+subset(titanic, (Pclass == 2), c(Pclass, Name, Age, Sex))
+
+```
+
+## Question 4 (2 point)
+```{r}
+# How many NAs are in the full dataset? (show with code) 
+
+# This code ensures that both empty numeric and character entries are represented as NA
+titanic[titanic==""] <- NA
+sum(is.na(titanic))
+
+
+# How many NAs are in the 'age' column? (hint: you may need to Google) (show with code)
+sum(is.na(titanic$Age))
+
+
+```
+
+## Question 5 (1 point)
+```{r}
+# Recode the variable 'sex' of the dataset as factor so that 'male' becomes 'm' and 'female' becomes 'f'
+
+# Coding the variable Sex as a factor variable allows the user to change the name of the levels by using the levels()
+factor_titanic <- factor(titanic$Sex)
+levels(factor_titanic) <- c("f", "m")
+titanic$Sex = factor_titanic
+titanic
+
+```
+
+## Question 6 (.5 point)
+```{r}
+# print summary statistics for the dataset
+
+# The summary() function prints the five number summary + the mean for each column
+summary(titanic)
+
+```
+
+## Question 7 (1 point)
+```{r}
+# What is the average ticket price for a first class ticket?
+# (round answer to 2 decimal points)
+
+# In order to calculate the average ticket price (Fare) for a first class (Pclass = 1) ticket, one must subset the data and then find the mean of the Fare column
+round(colMeans(subset(titanic, (Pclass == 1), Fare)), 2)
+
+```
+
+## Question 8 (1 point)
+```{r}
+# Plot a histogram for the fare price
+
+# Histogram showing all fare prices for the titanic dataset
+hist(titanic$Fare,xlab = 'Fare Price', main = 'Price Distribution', xlim = c(0,600), ylim = c(0, 800))
+
+```
+
+## Question 9 (1 point)
+```{r}
+# Using 'histogram' function in lattice package (required for question) to plot a histogram of fare price 
+# separated by port of embarkation (embarked)
+# If unfamiliar, you will need to look up the lattice package
+# histogram(~ variable | dividing variable, data = data_name)
+
+# Importing the lattice package necessary to run the code
+# Histogram split between the three embarkation ports. Because the two empty values (both at $80) were marked as NA using earlier code, these values do not appear in this histogram. 
+library('lattice')
+histogram(~Fare|Embarked,data=titanic,
+       xlab="Fare Price",
+       main="Titanic Fare Price by Port of Embarkation")
+
+```
+
+
+## Question 10 (1 point)
+```{r}
+# Write one sentence interpreting this graph
+
+#There was a more spread out distribution of fares for people who embarked at Cherbourg (C) compared to Southampton (S) and Queenstown (Q), meaning that a variety of passangers across classes embarked at Cherbourg whereas it was far more common to only have passangers with less expensive/lower class tickets embark from the other ports. 
+
+```
+
+## Question 11 (1 point)
+```{r}
+# Create a barplot of counts of cabin class vs sex
+# x axis is sex, bars are shaded by cabin class (use one of the commands for 
+# contingency table)
+
+barplot(table(titanic$Pclass,titanic$Sex),
+        beside = TRUE,
+        xlab = "Sex (Male or Female)",
+        ylab = "Number of People in a Cabin Class",
+        ylim = c(0, 350),
+        legend.text = c("Class1", "Class2","Class3"),
+        main = 'Cabin Class vs. Sex')
+
+```
+
+## Question 12 (4 point)
+```{r}
+# (1) create a vector of 10 numbers which includes a few NAs 
+# (2) confirm it is a vector with a built-in function
+# (3) sum the number of NAs in vector
+# (4) remove the NA values from your vector and then delete your vector 
+# object from the workspace
+
+#1 
+practice_vector <- c(1,2,3,NA,5,6,7,NA,9,NA)
+#2
+is.vector(practice_vector)
+#3
+sum(is.na(practice_vector))
+#4
+practice_vector[!is.na(practice_vector)]
+rm(practice_vector) 
+# the remove() function would also work here to clear the current R working environment of this object
+
+```
+
+## Question 13 (4 points)
+```{r}
+# (1) create a matrix of numbers from 1 to 500 going by 2's that is 25 rows by 10 columns 
+# (2) confirm it is a matrix using a built-in function
+# (3) get the dimensions of the matrix 
+# (4) subset rows 10-15 and columns 3-6
+
+#1
+practice_matrix <- matrix(seq(from=2, to=500,by=2), byrow = TRUE, nrow = 25)
+practice_matrix
+
+#2
+is.matrix(practice_matrix)
+
+#3
+dim(practice_matrix)
+
+#4
+practice_matrix[10:15,3:6]
+
+```
+

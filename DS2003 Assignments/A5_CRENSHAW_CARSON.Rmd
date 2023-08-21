@@ -1,0 +1,161 @@
+---
+title: "Assignment 5 - dplyr and tidyr (25 pts)"
+author: "CARSON CRENSHAW (cgc8gdt)"
+
+output: html_document
+---
+
+**You will submit the html output and raw rmd file.**
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+
+## Part 1: Let's talk about the shark in the room
+Download the shark tank dataset, read over the website and columns description 
+https://www.kaggle.com/datasets/thirumani/shark-tank-us-dataset
+```{r}
+# Load the dataset; assign the dataframe to object called 'df_shark'
+df_shark <- read.csv('Shark Tank US dataset.csv')
+head(df_shark)
+```
+
+## Question 1 (2 point)
+Visualize the distribution of (Valuation.Requested) subsetted by (Industry)
+with a violin plot.
+rotate x labels 90 degrees to make them visible
+```{r}
+#Basic violin plot
+ggplot(df_shark, aes(Industry, Valuation.Requested)) + 
+  geom_violin() +
+  labs(title = 'Basic Violin Plot of Valuation Requested by Industry')+
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.05, hjust=1))
+```
+
+## Question 2 (2 point)
+Calculate the mean, std, and count, and standard error of "Valuation Requested" 
+subsetted by "Industry"
+Hint: use group_by and summarize
+```{r}
+df_shark_summary <-df_shark%>%
+  group_by(Industry) %>%
+  summarize(meanval=mean(Valuation.Requested, na.rm = TRUE), 
+            stdval=sd(Valuation.Requested,na.rm = TRUE),
+            countval=length(Valuation.Requested), 
+            seval=(stdval/sqrt(countval)))
+#Using the na.rm function allows the mean and std to be calculated despite 
+#NA values in the column (allows summary statistics for the children/education
+#industry). There are four values in the dataset that do not have much info,
+#nor do they have an industry group/valuation requested metrics (col#1). 
+df_shark_summary
+```
+
+## Question 3 (2 point)
+Visualize the mean (as points) and the standard error of the data (using errorbars)
+rotate x labels 90 degrees to make them visible
+```{r}
+ggplot(df_shark_summary, aes(Industry, meanval)) + geom_point(color='orange') +
+  geom_errorbar(aes(ymin=meanval-seval, ymax=meanval+seval), width=.1,color = 'orange') +
+  labs(title = 'Mean and Standard Error Visualization of Valuation Requested by Industry')+
+  theme_bw() +
+  labs(y='Valuation.Requested Mean')+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.05, hjust=1))
+```
+
+## Question 4 (2 point)
+Overlay the violin plot and the errorbar plot on the same chart
+```{r}
+ggplot()+ 
+  geom_violin(df_shark, mapping=aes(Industry, Valuation.Requested))+ 
+  geom_point(df_shark_summary, mapping=aes(Industry, y = meanval,color='orange'))+ 
+  geom_errorbar(df_shark_summary, mapping=aes(x = Industry, 
+                                              y = meanval, ymin = meanval - seval,
+                                              ymax = meanval + seval),width = 0.5, color = "orange")+
+  labs(title = 'Violin Plot of Valuation Requested by Industry with Mean and Standard Error')+
+  theme_bw()+
+  theme(legend.position='None')+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.05, hjust=1))
+```
+
+## Question 5 (2 point)
+Do you think that using the error bars and the mean are a 
+better summary of the data than the violin plot? Why or why not?
+Keep it brief and direct (for grading purposes!)
+```{r}
+#Choosing between the errorbars/mean summary and the violin plot, the better 
+#summary of the data is the violin plot. Although an audience would benefit 
+#from the combined information from both the mean/errorbars and the distribution 
+#of the violin plot, the advantage of the violin plot is that aside from being 
+#able to show the median and quartiles it also can show the entire distribution 
+#and concentration of the data. Only using the mean/standard error might skew 
+#an interpretation of the data if there are outliers and does not show the 
+#full extent of the data. 
+
+#To keep it brief, the best chart would be the mean/errorbars AND the violin 
+#plot, but between the two the violin plot is better than just the mean/errorbars. 
+```
+
+
+## Part 2: The Doggo Dataset
+### Review tidyr functions to tidy a dataframe. Let's tidy this dataframe!
+
+## Question 6 (2 point)
+Import csv file and replace any values of "" with NA instead
+```{r}
+doggo <- read.csv('dogs.csv', na.strings=c("","NA"))
+doggo
+```
+
+## Question 7 (3 point)
+fill() in values for (patient), (breed), (address), and (guardian), for all rows of the dataframe obtained from Q6
+(fill down same value to next value)
+** Hint: fill() expects NA for fills **
+```{r}
+doggo1 <- doggo %>% 
+  fill(patient, breed, address, guardian)
+doggo1
+```
+
+## Question 8 (3 point)
+Use pivot_longer() to combine (height), (length), and (width) columns to (dimension) for the dataframe obtained from Q7
+```{r}
+doggo2 <- doggo1 %>%
+  pivot_longer(cols = c('height', 'length', 'width'), names_to = 'dimension')
+doggo2
+```
+
+## Question 9 (2 point)
+Split (weight) between (weight) and (weight_units) using (separate) for the dataframe obtained from Q8
+```{r}
+doggo3 <- doggo2 %>%
+  separate(weight, c('weight', 'weight_units'), ' ')
+doggo3
+```
+
+## Question 10 (2 point)
+Split (visit_date) to (visit_num) and (date) using separate() function for the dataframe obtained from Q9
+```{r}
+doggo4 <- doggo3 %>%
+  separate(visit_date, c('visit_num', 'date'), '-')
+doggo4
+```
+
+## Question 11 (3 point)
+Separate the dataframe from Q10 into 
+* guardian_df (guardian and address), remove any repeating rows with distinct()
+* dog_df (all other columns)
+using the select() function
+```{r}
+guardian_df <- doggo4 %>%
+  select('guardian', 'address') %>% distinct()
+guardian_df
+
+dog_df <- doggo4 %>%
+  select(-'guardian', -'address')
+dog_df
+
+```
+
+

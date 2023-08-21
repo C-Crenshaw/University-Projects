@@ -1,0 +1,182 @@
+---
+title: "Assignemnt 6: Plotly"
+author: "CARSON CRENSHAW (cgc8gdt)"
+output: html_notebook
+---
+
+```{r}
+library(plyr)
+library(tidyverse)
+library(plotly)
+```
+
+
+Two ways of creating 2D plot using plotly
+```{r}
+p0 <- plot_ly(data, x=~Petal.Length, y=~Petal.Width,color=~Species, type = 'scatter', mode = 'markers')
+p0
+
+data <- as.data.frame(iris)
+setosa <- data %>% dplyr::filter(Species == 'setosa')
+versicolor <- data %>% dplyr::filter(Species == 'versicolor')
+virginica <- data %>% dplyr::filter(Species == 'virginica')
+
+p1 <- plot_ly(type = 'scatter', mode = 'markers') 
+p1 <- p1 %>%
+  add_trace(x = setosa$Petal.Length, y = setosa$Petal.Width,
+    marker = list(color = "coral", line = list(color="brown",width=2),
+      size = 10), name = 'Setosa', hovertemplate = 'Petal Width: %{x} <br>Petal Length: %{y}'
+  ) 
+p1 <- p1 %>%
+  add_trace(
+    x = versicolor$Petal.Length,y = versicolor$Petal.Width,
+    marker = list(color = 'cornflowerblue', line = list(color='darkblue',width=2),
+      size = 10), name = 'Versicolor', hovertemplate = 'Petal Width: %{x} <br>Petal Length: %{y}'
+  ) 
+p1 <- p1 %>%
+  add_trace(
+    x = virginica$Petal.Length, y = virginica$Petal.Width,
+    marker = list(color = 'cyan', line = list(color='darkcyan',width=2),
+      size = 10), name = 'Virginica', hovertemplate = 'Petal Width: %{x} <br>Petal Length: %{y}'
+  ) 
+p1 <- p1 %>%
+  layout(title = 'Scatterplot of Petal Length by Petal Width',
+         xaxis = list(title = 'Petal Length', showgrid = F),
+         yaxis = list(title = 'Petal Width', showgrid = F, zeroline = F))
+p1
+```
+
+Homework:
+
+Q1) Make the previous graph 3D by adding Sepal Length on the z-axis. (10 points) 
+
+In order to demonstrate my understanding of the material, I have recreated both standard ways to create a 3D scatterplot. The first way is shown before the code chunk and the second is shown after. 
+```{r, fig.width = 10, fig.height = 7}
+p2 <- data %>% plot_ly( opacity = 0.5, type = 'scatter3d', mode = 'markers') %>% 
+  add_trace(x = ~Petal.Length, y = ~Petal.Width, z = ~Sepal.Length, color = ~Species,
+            marker = list(size = 7,line = list(width = .5)))  %>%
+  
+  layout(title = 'Scatterplot of Petal Length, Petal Width & Septal Length',
+         scene = list(xaxis = list(title = "petal length"),
+                      yaxis = list(title = "petal width"),
+                      zaxis = list(title = "sepal length")))
+# (P2) First way of creating a 3D plot
+p2 
+
+p3 <- plot_ly(type = 'scatter3d', mode = 'markers') 
+p3 <- p3 %>%
+  add_trace(x = setosa$Petal.Length, y = setosa$Petal.Width, 
+            z = setosa$Sepal.Length, opacity = 0.5, 
+    marker = list( color = "coral", size = 7,
+      line = list(color = 'brown', width = .5)), name = 'setosa')  %>%
+  
+  add_trace( x = versicolor$Petal.Length, y = versicolor$Petal.Width, 
+            z = versicolor$Sepal.Length,
+    marker = list( color = "cornflowerblue", size = 7, 
+                   line = list( color = 'darkblue',width = .5)),name = 'versicolor') %>%
+  
+  add_trace( x = virginica$Petal.Length, y = virginica$Petal.Width, 
+            z = virginica$Sepal.Length,
+    marker = list( color = "cyan", size = 7,
+      line = list( color = 'darkcyan', width = .5 )), name = 'virginica') %>%
+  
+  layout(title = 'Scatterplot of Petal Length, Petal Width & Sepal Length',
+         scene = list(xaxis = list(title = "petal length"),
+                      yaxis = list(title = "petal width"),
+                      zaxis = list(title = "sepal length")))
+# (P3) Second way of creating a 3D plot
+p3
+```
+
+Q2) Create grouped boxplots with
+* 4 groups of 3 boxplots, where
+* Each group is an iris dimension measure (Petal L & W, Sepal L & W)
+* Each boxplot within group is a species
+* Use your own cohesive color palette using coolors.co. Don't forget to include all the parts of a chart.  
+* See reference image for the plot you are trying to design
+(10 points) 
+```{r, fig.width = 10, fig.height = 7}
+#Alter the structure of the dataset
+data_2 <- data %>%
+  pivot_longer(cols = c('Petal.Length', 'Petal.Width', 'Sepal.Length', 'Sepal.Width'), 
+               names_to = 'category', values_to = 'value')
+setosa2 <- data_2 %>% dplyr::filter(Species == 'setosa')
+versicolor2 <- data_2 %>% dplyr::filter(Species == 'versicolor')
+virginica2 <- data_2 %>% dplyr::filter(Species == 'virginica')
+
+#Boxplots
+p4 <- plot_ly(data_2, x = ~category, y = ~value, color = ~Species, type = "box", 
+              colors=c("#85BAA1", "#F7D6E0", "#7A82AB"))
+p4 <- p4 %>% layout(boxmode = "group", title = 'Boxplots of Petal Length, Petal Width, Sepal Length, & Sepal Width')
+
+p4
+```
+
+Interactive plotly
+
+Using this code from the lecture for the next question
+```{r, fig.width = 10, fig.height = 7}
+# 2.1. From the plotly-1 lecture, take the line graph at the end of the lecture (guinea pig tooth growth)
+
+tg <- ddply(ToothGrowth, c("supp", "dose"), summarise, length=mean(len))
+# create figure
+fig <- plot_ly(tg, x = ~dose, y = ~length, type = 'scatter', mode = 'lines', linetype = ~supp, color = I('black')) 
+
+fig <- fig %>% layout(title = 'The Effect of Vitamin C on Tooth Growth in Guinea Pigs by Supplement Type',
+         xaxis = list(title = 'Dose in milligrams/day'),
+         yaxis = list (title = 'Tooth length'))
+
+fig
+```
+
+
+Q3: Add two buttons to change the colors of the plot between yellow & blue (1 button for yellow, 1 button for blue)
+```{r, fig.width = 10, fig.height = 7}
+#Copy code from above
+fig1 <- plot_ly(tg, x = ~dose, y = ~length, type = 'scatter', mode = 'lines', linetype = ~supp, color = I('black')) 
+
+fig1 <- fig1 %>% layout(title = 'The Effect of Vitamin C on Tooth Growth in Guinea Pigs by Supplement Type',
+         xaxis = list(title = 'Dose in milligrams/day'),
+         yaxis = list (title = 'Tooth length'))
+
+#Annotation/Description of the button function
+annot <- list(list(text = "Color<br>Type", x=0.07, y=0.97, xref='paper', yref='paper', showarrow=FALSE))
+
+#Button code
+fig1 <- fig1 %>% layout(
+  updatemenus = list(
+    list(
+      type = "buttons",
+      direction = "right",
+      xanchor = 'center',
+      yanchor = "top",
+      pad = list('r'= 0, 't'= 10, 'b' = 10),
+      x = 0.23,
+      y = 0.99,
+      buttons = list(
+
+        list(method = "restyle",
+             args = list("line.color", "blue"),
+             label = "Blue"),
+
+        list(method = "restyle",
+             args = list("line.color", "yellow"),
+             label = "Yellow")))), annotations = annot)
+
+fig1
+```
+
+
+Q4) Provide a link and description of an interactive graph you find within reputable new media.
+
+Link: https://www.carboncounter.com/#!/explore
+Website Title: Carbon Counter: Cars Evaluated Against Climate Targets
+
+Developed by the Massachusetts Institute of Technology (MIT) Institute for Data, Systems, and Society, the Carbon Counter is an interactive scatterplot that illustrates the comparison between greenhouse gas emissions and cost of 125 U.S. car models. The scatterplot also includes the 2030 and 2040 emissions targets for vehicles on the road as horizontal dashed lines across the chart, allowing a user to clearly see which cars adhere to the lower levels of greenhouse emissions. Cars are grouped by type of engine (internal combustion engine, hybrid, battery electric vehicle, etc.) and are assigned a color based off of this grouping. The graph demonstrates that cars emitting less carbon are the least expensive to drive overall.
+
+The interactive elements of the graph are quite thorough. By hovering over individual points, users can glean the make and model of a car (along with additional data such as cost and mpg). Users can also highlight cars based on group by selecting an engine type from the legend. As a final note, the Carbon Counter provides drop-down menu filters that can isolate points by powertrain, vehicle class, drive type, and horsepower. This graph provides a sufficient amount of data in a relatively clear manner and would be beneficial to anyone in the market for a new car.  
+
+Q5) Note one thing that would improve the graph. 
+
+While this graphic is well developed and is well organized for the amount of information it conveys, the graph lacks basic elements such as a clear title and caption/byline. The graph has a plethora of information illustrated through visual encoding, but I would improve the graph by including more scaffolding (a term used by Alberto Cairo in How Charts Lie). To read a chart well, one must also focus on the features that surround the content and support it. The title, source information, and description of the chart itself are often as important as the information it describes. The Carbon Counter, however, does not include any of these foundational elements. In order to write the summary above, for example, I had to navigate to a hidden information tab at the top of the screen, watch a Youtube video produced by the researchers, and follow a link to the parent institute's website. The scatterplot itself fails to adequately describe what the graphic is actually showing, a drawback that could obscure the importance of the data to an average viewer. By adding a title and a brief caption the researchers can ensure that readers understand and correctly interpret a figure. 
+
